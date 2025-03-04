@@ -1,0 +1,30 @@
+/.idea/
+/modules/cudl-data-processing/properties_files/
+/modules/cudl-data-processing/zipped_properties_files/
+.terraform
+.terraform.lock.hcl
+local.tfvars
+
+# General ignores 
+
+# OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Windows shortcuts
+*.lnk
