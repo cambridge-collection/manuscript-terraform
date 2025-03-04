@@ -1,0 +1,123 @@
+'use-strict';
+
+import crypto from 'crypto';
+import cf from 'cloudfront';
+
+const kvsHandle = cf.kvs();
+
+const KeyPrivateSite = "privateSite"
+const keySecret = "secret"
+const keyJwtDuration = "jwtDuration"
+let secret = "Not Found"
+let privateSite = "Not Found"
+let jwtDuration = 60*60*1000
+
+const now = new Date()
+const now_sec = now / 1000
+
+function jwt_generate(header, payload, secret) {
+    const header_64 = btoa(JSON.stringify(header))
+    const payload_64 = btoa(JSON.stringify(payload))
+    const signingInput =[header_64, payload_64].join('.')
+    const hmac = crypto.createHmac('sha256', secret);
+    const sig_2 = hmac.update(signingInput)
+    const sigBase64_2 = sig_2.digest('base64');
+    const sig_final = Buffer.from (sigBase64_2).toString('utf8')
+    return[signingInput, sig_final].join('.');
+}
+
+function jwt_is_expired(received_token) {
+    let result = true
+    if (received_token) {
+        const segments = received_token.split('.');
+        if (segments.length === 3) {
+            const payload = JSON.parse(atob(segments[1]))
+            if ('exp' in payload && !isNaN(payload['exp'])) {
+                result = (payload['exp'] <= now_sec)
+            }
+        }
+    }
+    return result
+}
+
+function jwt_valid(received_token, secret) {
+    // Only checks validity of the encoded token. It doesn't check if it is expired
+    let result = false
+    if (! received_token) {
+        result = false
+    } else {
+        // check segments
+        const segments = received_token.split('.');
+        if (segments.length !== 3) {
+            result = false
+            console.log('Not enough or too many segments');
+        }
+
+        const header = JSON.parse(atob(segments[0]))
+        const payload = JSON.parse(atob(segments[1]))
+        const signatureSeg = segments[2];
+
+        const token_calc = jwt_generate(header, payload, secret)
+        const sig_calc = token_calc.split('.')[2]
+
+        if (sig_calc !== signatureSeg) {
+            result = false
+            console.log('Signature verification failed')
+        } else {
+            result = true
+        }
+    }
+    return result;
+}
+
+async function handler(event) {
+    let request = event.request;
+    const domainTld = ('host' in request.headers) ?  (request.headers.host.value).split(/\./).slice(-2).join('.') : 'cudl-sandbox.net';
+    const cookieKey = domainTld+"Key"
+    if (['GET','HEAD','OPTIONS'].includes(request.method)) {
+        try {
+            secret = await kvsHandle.get(keySecret)
+            privateSite = await kvsHandle.get(KeyPrivateSite)
+            jwtDuration = await kvsHandle.get(keyJwtDuration)
+        } catch (err) {
+            console.log(`Kvs key lookup failed: ${err}`);
+        }
+
+        privateSite = (privateSite === 'true') ? true: false
+        jwtDuration = (!isNaN(jwtDuration)) ? parseInt(jwtDuration) : 60*60*1000
+        let isAuthorised = false;
+        const jwt_token = (cookieKey in request.cookies) ? request.cookies[cookieKey].value : ''
+        if (privateSite && jwt_token != '') {
+            if (!jwt_is_expired(jwt_token)) {
+                //console.log('Token still active')
+                let auth_result = false
+                try {
+                    auth_result = jwt_valid(jwt_token, secret)
+                } catch (err) {
+                    console.log(`${err}`);
+                }
+                if (auth_result) {
+                    isAuthorised = true
+                }
+            } else {
+                console.log('JWT expired')
+            }
+        }
+        if (!privateSite || isAuthorised ) {
+            return request
+        }
+        else {
+            return {
+                statusCode: 401,
+                statusDescription: "Unauthorized",
+            };
+        }
+    }
+    else {
+        // Only GET, HEAD and OPTIONS are allowed
+        return {
+            statusCode: 401,
+            statusDescription: "Unauthorized",
+        };
+    }
+}

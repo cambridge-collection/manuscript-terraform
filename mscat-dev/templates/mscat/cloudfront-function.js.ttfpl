@@ -1,0 +1,205 @@
+'use-strict';
+
+import crypto from 'crypto';
+import cf from 'cloudfront';
+
+const kvsHandle = cf.kvs();
+
+const keyPrivateSite = "privateSite"
+const keyPass = "password";
+const keyUser = "username";
+const keyDomain = "domain"
+const keySecret = "secret"
+const keyJwtDuration = "jwtDuration"
+let user = "Not Found";
+let pass = "Not found";
+let domain = "Not Found"
+let secret = "Not Found"
+let privateSite = "Not Found"
+let jwtDuration = 60*60*1000
+
+const now = new Date()
+const now_sec = now / 1000
+
+function getLocation(href) {
+    var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+    return match && {
+        href: href,
+        protocol: match[1],
+        host: match[2],
+        hostname: match[3],
+        port: match[4],
+        pathname: match[5],
+        search: match[6],
+        hash: match[7]
+    }
+}
+
+function jwt_is_expired(received_token) {
+    let result = true
+    if (received_token) {
+        const segments = received_token.split('.');
+        if (segments.length === 3) {
+            const payload = JSON.parse(atob(segments[1]))
+            if ('exp' in payload && !isNaN(payload['exp'])) {
+                result = (payload['exp'] <= now_sec)
+            }
+        }
+    }
+    return result
+}
+
+function jwt_generate(header, payload, secret) {
+    const header_64 = btoa(JSON.stringify(header))
+    const payload_64 = btoa(JSON.stringify(payload))
+    const signingInput =[header_64, payload_64].join('.')
+    const hmac = crypto.createHmac('sha256', secret);
+    const sig_2 = hmac.update(signingInput)
+    const sigBase64_2 = sig_2.digest('base64');
+    const sig_final = Buffer.from (sigBase64_2).toString('utf8')
+    return[signingInput, sig_final].join('.');
+}
+
+async function handler(event) {
+    let request = event.request;
+    let redirectAfterAuth = false
+    let redirectResponse = {}
+    try {
+        pass = await kvsHandle.get(keyPass)
+        user = await kvsHandle.get(keyUser)
+        secret = await kvsHandle.get(keySecret)
+        domain = await kvsHandle.get(keyDomain)
+        privateSite = await kvsHandle.get(keyPrivateSite)
+        jwtDuration = await kvsHandle.get(keyJwtDuration)
+    } catch (err) {
+        console.log(`Kvs key lookup failed: ${err}`);
+    }
+    jwtDuration = (!isNaN(jwtDuration)) ? parseInt(jwtDuration) : 60*60*1000
+    privateSite = (privateSite === 'true') ? true: false
+    const requiredBasicAuth = "Basic " + btoa(`${user}:${pass}`);
+    let isAuthorised = false;
+    const domainTld = ('host' in request.headers) ?  (request.headers.host.value).split(/\./).slice(-2).join('.') : domain;
+    const cookieKey = domainTld+"Key"
+    if (privateSite && request.headers.authorization) {
+        if (request.headers.authorization.value === requiredBasicAuth) {
+            isAuthorised = true;
+            const token_expires_sec = new Date(now.valueOf() + jwtDuration)/1000
+
+            const header = {
+                "alg": "RS256",
+                "typ": "JWT"
+            }
+
+            const claims = {
+                "iss": domainTld,
+                "iat": now_sec,
+                "exp": token_expires_sec
+            }
+
+            const token = jwt_generate(header, claims, secret)
+            const token_expired = (cookieKey in request.cookies) ? jwt_is_expired(request.cookies[cookieKey].value) : true
+            if (!(cookieKey in request.cookies) || token_expired) {
+                // No cookie
+                redirectAfterAuth = true
+            }
+
+            const queryParams = []
+            Object.keys(event.request.querystring).forEach(key => {
+                queryParams.push(key+'='+request.querystring[key].value)
+            })
+            let queryString = ''
+            if (queryParams.length > 0) {
+                queryString = '?' + queryParams.join('&')
+            }
+            const cookie = {}
+            cookie[cookieKey] = {
+                "value" : token,
+                "attributes": "Secure; Path=/; Domain="+domainTld
+            }
+            redirectResponse = {
+                statusCode: 301,
+                statusDescription: 'Moved Permanently',
+                headers:
+                    { "location": { "value": request.uri+ queryString },
+                        "authorization":{ "value": requiredBasicAuth}
+                    },
+                cookies: cookie
+            }
+        }
+    }
+    if (!privateSite || (isAuthorised && !redirectAfterAuth)) {
+
+        const url = getLocation('https://www.darwinproject.ac.uk'+ request.uri)
+        const uri = url.pathname;
+        const anchor = url.hash
+        const is_search = /^\/search(\/+)*$/ig.test(uri)
+        const docId = (event.request.querystring['docId']) ? event.request.querystring['docId'].value.replace(/(^(\.\.\/+)+|^\/|\.xml.*$)/,'') : ''
+
+        let response = {}
+
+        if (uri.match('^/searchResults.config.json')) {
+            request.uri = '/searchResults.config.json'
+        }
+        else if (is_search) {
+            if (Object.values(event.request.querystring).some(s => /;([-_a-zA-Z0-9]+=)/ig.test(s.value))) {
+                let final = []
+                Object.keys(event.request.querystring).forEach(key => {
+                    let raw = event.request.querystring[key].value
+                    // Replace ; delimiting xtf key value pairs
+                    raw = raw.replace(/;([-_a-zA-Z0-9]+=)/ig,'&$1')
+                    final.push(key+'='+raw)
+                })
+                let param_string = final.join('&')
+                param_string = param_string.replace(/=%22%22/g, '=')
+
+                response = {
+                    statusCode: 301,
+                    statusDescription: 'Moved Permanently',
+                    headers:
+                        { "location": { "value": "/search?"+ param_string } }
+                }
+            } else {
+                request.uri = '/search.html'
+            }
+        }
+
+        else if (event.request.querystring['page'] && !is_search ) {
+            let final_uri = (uri == '/' || uri == '') ? '/index' : uri
+            request.uri = final_uri + '%3Fpage=' + event.request.querystring['page'].value + '.html' +anchor
+
+        }
+        else if (/^(index\/*|\/*)$/.test(uri)) {
+            response = {
+                statusCode: 301,
+                statusDescription: 'Moved Permanently',
+                headers:
+                    { "location": { "value": "/search?sort=title" } }
+            }
+        }
+        else if (uri.endsWith('/')) {
+            request.uri += 'index.html';
+        }
+        else if (!uri.includes('.')) {
+            let new_uri = uri.replace(/ /g, '_')
+            new_uri = new_uri.replace(/#.+$/,'')
+            request.uri = new_uri + '.html' + anchor;
+        }
+
+        if ('statusCode' in response) {
+            return response
+        } else {
+            return request;
+        }
+    }
+    else if (redirectAfterAuth && isAuthorised ) {
+        return redirectResponse
+    } else {
+        return {
+            statusCode: 401,
+            statusDescription: "Unauthorized",
+            headers: {
+                "www-authenticate": { value: "Basic" },
+            },
+        };
+    }
+}
