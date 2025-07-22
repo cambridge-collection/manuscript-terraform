@@ -13,6 +13,8 @@ module "base_architecture" {
   vpc_public_subnet_public_ip    = var.vpc_public_subnet_public_ip
   cloudwatch_log_group           = var.cloudwatch_log_group # TODO create log group
   vpc_cidr_block                 = var.vpc_cidr_block
+  acm_create_certificate         = false
+  acm_certificate_arn            = var.acm_certificate_arn
   tags                           = local.default_tags
 }
 
@@ -49,6 +51,9 @@ module "cudl-data-processing" {
   cloudfront_origin_path                    = var.cloudfront_origin_path
   cloudfront_error_response_page_path       = var.cloudfront_error_response_page_path
   cloudfront_viewer_request_function_arn    = aws_cloudfront_function.mscat.arn
+  cloudfront_alternative_domain_names       = [trimsuffix(var.registered_domain_name, ".")]
+  acm_create_certificate                    = false
+  acm_certificate_arn                       = var.acm_certificate_arn_us-east-1
   providers = {
     aws.us-east-1 = aws.us-east-1
   }
@@ -96,6 +101,9 @@ module "solr" {
   allow_private_access                           = var.solr_use_service_discovery
   ingress_security_group_id                      = aws_security_group.solr.id
   efs_create_file_system                         = true
+  acm_create_certificate                         = false
+  acm_certificate_arn                            = var.acm_certificate_arn
+  acm_certificate_arn_us-east-1                  = var.acm_certificate_arn_us-east-1
   tags                                           = local.default_tags
   providers = {
     aws.us-east-1 = aws.us-east-1

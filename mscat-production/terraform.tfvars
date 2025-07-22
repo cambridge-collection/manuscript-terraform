@@ -100,8 +100,8 @@ EOF
 #route53_delegation_set_id      = "N02288771HQRX5TRME6CM"
 route53_zone_id_existing       = "Z098298513YT6MQQR228Z"
 route53_zone_force_destroy     = false
-acm_certificate_arn            = "arn:aws:acm:eu-west-1:899360085657:certificate/0613a9c7-2152-42d5-adbb-51b2f14d1865"
-acm_certificate_arn_us-east-1  = "arn:aws:acm:eu-west-1:899360085657:certificate/0613a9c7-2152-42d5-adbb-51b2f14d1865"
+acm_certificate_arn            = "arn:aws:acm:eu-west-1:899360085657:certificate/4f0c4eec-6864-43c9-835f-b7f26b9e54e8"
+acm_certificate_arn_us-east-1  = "arn:aws:acm:us-east-1:899360085657:certificate/f84b57ba-57be-49d4-884f-d74c5fe06728"
 alb_enable_deletion_protection = false
 alb_idle_timeout               = "900"
 vpc_cidr_block                 = "10.42.0.0/22" #1024 adresses

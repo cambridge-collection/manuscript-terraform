@@ -5,7 +5,7 @@ variable "environment" {
 
 variable "project" {
   type        = string
-  description = "Project or Service name, e.g. DPS, CUDL, mscat"
+  description = "Project or Service name, e.g. DPS, CUDL, Darwin, Epsilon, mscat"
 }
 
 variable "component" {
@@ -218,6 +218,16 @@ variable "route53_zone_id_existing" {
 variable "route53_zone_force_destroy" {
   type        = bool
   description = "Whether to destroy all records (possibly managed outside of Terraform) in the zone when destroying the zone"
+}
+
+variable "acm_certificate_arn" {
+  type        = string
+  description = "ARN of an existing ACM certificate suitable for the Route 53 domain"
+}
+
+variable "acm_certificate_arn_us-east-1" {
+  type        = string
+  description = "ARN of an existing ACM certificate in us-east-1 region suitable for the Route 53 domain"
 }
 
 variable "alb_enable_deletion_protection" {
