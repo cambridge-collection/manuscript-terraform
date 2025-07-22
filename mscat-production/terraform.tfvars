@@ -20,13 +20,6 @@ transform-lambda-bucket-sqs-notifications = [
     "filter_prefix" = "solr-json/tei/"
     "filter_suffix" = ".json"
     "bucket_name"   = "releases"
-  },
-  {
-    "type"          = "SQS",
-    "queue_name"    = "MscatIndexPagesQueue"
-    "filter_prefix" = "solr-json/pages/"
-    "filter_suffix" = ".json"
-    "bucket_name"   = "releases"
   }
 ]
 transform-lambda-information = [
@@ -49,26 +42,6 @@ transform-lambda-information = [
       API_HOST = "solr-api-mscat-ecs.mscat-medieval-production-solr"
       API_PORT = "8081"
       API_PATH = "item"
-    }
-  },
-  {
-    "name"                     = "AWSLambda_Pages_SOLR_Listener"
-    "image_uri"                = "899360085657.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:158dbb45f4680d16eace3f61da46ef9b5aa5b5a673750c8ab942b8ebd2831c64"
-    "queue_name"               = "MscatIndexPagesQueue"
-    "vpc_name"                 = "mscat-medieval-production-mscat-ecs-vpc"
-    "subnet_names"             = ["mscat-medieval-production-mscat-ecs-subnet-private-a", "mscat-medieval-production-mscat-ecs-subnet-private-b"]
-    "security_group_names"     = ["mscat-medieval-production-mscat-ecs-vpc-egress", "mscat-medieval-production-solr-external"]
-    "timeout"                  = 180
-    "memory"                   = 1024
-    "batch_window"             = 2
-    "batch_size"               = 1
-    "maximum_concurrency"      = 5
-    "use_datadog_variables"    = false
-    "use_additional_variables" = true
-    "environment_variables" = {
-      API_HOST = "solr-api-mscat-ecs.mscat-medieval-production-solr"
-      API_PORT = "8081"
-      API_PATH = "page"
     }
   }
 ]
