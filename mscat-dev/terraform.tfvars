@@ -32,7 +32,7 @@ transform-lambda-bucket-sqs-notifications = [
 transform-lambda-information = [
   {
     "name"                     = "AWSLambda_TEI_SOLR_Listener"
-    "image_uri"                = "563181399728.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:39b16c47e150abf635a8a46067da06d2a71b38c2f97cc3f8d5381d9604ce106c"
+    "image_uri"                = "563181399728.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:6a0725719f82e371437659d12cbd2050d368cd3c1d38220045537fc6e966ab7e"
     "queue_name"               = "MscatIndexTEIQueue"
     "queue_delay_seconds"      = 10
     "vpc_name"                 = "mscat-dev-mscat-ecs-vpc"
@@ -53,7 +53,7 @@ transform-lambda-information = [
   },
   {
     "name"                     = "AWSLambda_Pages_SOLR_Listener"
-    "image_uri"                = "563181399728.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:39b16c47e150abf635a8a46067da06d2a71b38c2f97cc3f8d5381d9604ce106c"
+    "image_uri"                = "563181399728.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:6a0725719f82e371437659d12cbd2050d368cd3c1d38220045537fc6e966ab7e"
     "queue_name"               = "MscatIndexPagesQueue"
     "vpc_name"                 = "mscat-dev-mscat-ecs-vpc"
     "subnet_names"             = ["mscat-dev-mscat-ecs-subnet-private-a", "mscat-dev-mscat-ecs-subnet-private-b"]
@@ -112,8 +112,8 @@ solr_domain_name       = "mscat-dev-search"
 solr_application_port  = 8983
 solr_target_group_port = 8081
 solr_ecr_repositories = {
-  "mscat/solr-api" = "sha256:a6cfd4d585135d476e4a8d1d71f93990ba8d1f2e8e915a40977e16dafa3ea09c",
-  "mscat/solr"     = "sha256:0e605b192e9cb4250207aab65939d9d677a8ff2e322cec7b6daf8cab060e2257"
+  "mscat/solr-api" = "sha256:a332bdbde619b61d7affd5d307fcbaf66389c1320cf9ab59014389f5f712c718",
+  "mscat/solr"     = "sha256:46b11db5f0a74e02b4128d2a5059fae830cbf9087ee24292652eefbdc69ceae8"
 }
 solr_ecs_task_def_volumes     = { "solr-volume" = "/var/solr" }
 solr_container_name_api       = "solr-api"
