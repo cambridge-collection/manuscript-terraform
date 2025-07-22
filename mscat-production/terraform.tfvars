@@ -60,17 +60,16 @@ cloudfront_error_response_page_path = "/404.html"
 cloudfront_default_root_object      = "index.html"
 
 # Base Architecture
-cluster_name_suffix     = "mscat-ecs"
-registered_domain_name  = "medieval.lib.cam.ac.uk."
-asg_desired_capacity    = 1 # n = number of tasks
-asg_max_size            = 1 # n + 1
-asg_allow_all_egress    = true
-ec2_instance_type       = "t3.large"
-ec2_additional_userdata = <<-EOF
+cluster_name_suffix            = "mscat-ecs"
+registered_domain_name         = "medieval.lib.cam.ac.uk."
+asg_desired_capacity           = 1 # n = number of tasks
+asg_max_size                   = 1 # n + 1
+asg_allow_all_egress           = true
+ec2_instance_type              = "t3.large"
+ec2_additional_userdata        = <<-EOF
 echo 1 > /proc/sys/vm/swappiness
 echo ECS_RESERVED_MEMORY=256 >> /etc/ecs/ecs.config
 EOF
-#route53_delegation_set_id      = "N02288771HQRX5TRME6CM"
 route53_zone_id_existing       = "Z098298513YT6MQQR228Z"
 route53_zone_force_destroy     = false
 acm_certificate_arn            = "arn:aws:acm:eu-west-1:899360085657:certificate/4f0c4eec-6864-43c9-835f-b7f26b9e54e8"
