@@ -82,7 +82,7 @@ cloudwatch_log_group           = "/ecs/mscat-medieval-production"
 
 # SOLR Worload
 solr_name_suffix       = "solr"
-solr_domain_name       = "mscat-medieval-production-search"
+solr_domain_name       = "search"
 solr_application_port  = 8983
 solr_target_group_port = 8081
 solr_ecr_repositories = {
