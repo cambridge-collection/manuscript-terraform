@@ -86,7 +86,7 @@ solr_domain_name       = "search"
 solr_application_port  = 8983
 solr_target_group_port = 8081
 solr_ecr_repositories = {
-  "mscat/solr-api" = "sha256:572b6926988be1d80cc94395d4251569bc25952cd776ae6a634b4c5dc01e63cf",
+  "mscat/solr-api" = "sha256:f77909e67d1bf68f6d6ff253f7c55c186cfd89918ca376fe346649d86f4d5049",
   "mscat/solr"     = "sha256:bd85a2ff7168c5f7141188234ce2f1391341bdf657c09fa9b8830f0026ffa090"
 }
 solr_ecs_task_def_volumes     = { "solr-volume" = "/var/solr" }
