@@ -25,7 +25,7 @@ transform-lambda-bucket-sqs-notifications = [
 transform-lambda-information = [
   {
     "name"                     = "AWSLambda_TEI_SOLR_Listener"
-    "image_uri"                = "899360085657.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:158dbb45f4680d16eace3f61da46ef9b5aa5b5a673750c8ab942b8ebd2831c64"
+    "image_uri"                = "899360085657.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:af9641da791dbc525e5e48452277d6e87efb77026f37a272ec36fc259b0f87c6"
     "queue_name"               = "MscatIndexTEIQueue"
     "queue_delay_seconds"      = 10
     "vpc_name"                 = "mscat-medieval-production-mscat-ecs-vpc"
