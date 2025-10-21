@@ -1,8 +1,13 @@
-environment                  = "dev"
-project                      = "mscat"
-component                    = "cudl-data-workflows"
-subcomponent                 = "cudl-transform-lambda"
-destination-bucket-name      = "releases"
+environment               = "dev"
+project                   = "mscat"
+component                 = "cudl-data-workflows"
+subcomponent              = "cudl-transform-lambda"
+destination-bucket-name   = "releases"
+destination-bucket-prefix = ""
+github_oidc_subjects = [
+  "repo:cambridge-collection/mscat:ref:refs/heads/main"
+]
+github_oidc_provider_arn     = null
 web_frontend_domain_name     = "mscat-dev.cudl-sandbox.net"
 transcriptions-bucket-name   = "unused-cul-cudl-transcriptions"
 enhancements-bucket-name     = "unused-cul-cudl-data-enhancements"
