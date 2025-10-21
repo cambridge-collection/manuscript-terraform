@@ -1,19 +1,19 @@
 resource "aws_cloudfront_function" "mscat" {
-  name    = "${local.environment}-clean_urls"
-  runtime = "cloudfront-js-2.0"
-  comment = "clean-and-redirect"
-  publish = true
+  name                         = "${local.environment}-clean_urls"
+  runtime                      = "cloudfront-js-2.0"
+  comment                      = "clean-and-redirect"
+  publish                      = true
   key_value_store_associations = [aws_cloudfront_key_value_store.viewer.arn]
-  code    = file("${path.module}/templates/mscat/cloudfront-function.js.ttfpl")
+  code                         = file("${path.module}/templates/mscat/cloudfront-function.js.ttfpl")
 }
 
 resource "aws_cloudfront_function" "search" {
-  name    = "${local.environment}-search-api"
-  runtime = "cloudfront-js-2.0"
-  comment = "search api frontend"
-  publish = true
+  name                         = "${local.environment}-search-api"
+  runtime                      = "cloudfront-js-2.0"
+  comment                      = "search api frontend"
+  publish                      = true
   key_value_store_associations = [aws_cloudfront_key_value_store.viewer.arn]
-  code    = file("${path.module}/templates/mscat/search-frontend.js.ttfpl")
+  code                         = file("${path.module}/templates/mscat/search-frontend.js.ttfpl")
 }
 
 resource "aws_cloudfront_key_value_store" "viewer" {
