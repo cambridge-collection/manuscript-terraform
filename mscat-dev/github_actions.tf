@@ -1,35 +1,42 @@
 locals {
   destination_bucket_prefix_normalized = trim(var.destination-bucket-prefix, "/")
-  destination_bucket_prefix_condition_values = (local.destination_bucket_prefix_normalized == "" ? [] : [
+  destination_bucket_prefix_condition_values = local.destination_bucket_prefix_normalized == "" ? [] : [
     "${local.destination_bucket_prefix_normalized}/*",
     local.destination_bucket_prefix_normalized
-  ])
+  ]
   destination_bucket_name_effective = module.cudl-data-processing.destination_bucket
-  destination_bucket_prefix_object_arn = (local.destination_bucket_prefix_normalized == "" ?
-    format("arn:aws:s3:::%s/*", local.destination_bucket_name_effective) :
-    format(
-      "arn:aws:s3:::%s/%s/*",
-      local.destination_bucket_name_effective,
-      local.destination_bucket_prefix_normalized
-  ))
-  github_oidc_default_arn = format(
-    "arn:aws:iam::%s:oidc-provider/token.actions.githubusercontent.com",
-    data.aws_caller_identity.current.account_id
+  destination_bucket_prefix_object_arn = local.destination_bucket_prefix_normalized == "" ? format(
+    "arn:aws:s3:::%s/*",
+    local.destination_bucket_name_effective
+    ) : format(
+    "arn:aws:s3:::%s/%s/*",
+    local.destination_bucket_name_effective,
+    local.destination_bucket_prefix_normalized
   )
-  github_oidc_provider_arn = coalesce(
-    var.github_oidc_provider_arn,
-    try(aws_iam_openid_connect_provider.github_actions[0].arn, null),
-    local.github_oidc_default_arn
+
+  github_oidc_issuer_url = "https://token.actions.githubusercontent.com"
+
+  github_oidc_thumbprint = var.github_oidc_provider_arn != null ? null : try(
+    data.tls_certificate.github_oidc[0].certificates[
+      length(data.tls_certificate.github_oidc[0].certificates) - 1
+    ].sha1_fingerprint,
+    "6938fd4d98bab03faadb97b34396831e3780aea1"
   )
+
+  github_oidc_provider_identifiers = var.github_oidc_provider_arn != null ? [var.github_oidc_provider_arn] : aws_iam_openid_connect_provider.github_oidc[*].arn
 }
 
-resource "aws_iam_openid_connect_provider" "github_actions" {
+data "tls_certificate" "github_oidc" {
+  count = var.github_oidc_provider_arn == null ? 1 : 0
+  url   = local.github_oidc_issuer_url
+}
+
+resource "aws_iam_openid_connect_provider" "github_oidc" {
   count = var.github_oidc_provider_arn == null ? 1 : 0
 
-  url = "https://token.actions.githubusercontent.com"
-
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  url             = local.github_oidc_issuer_url
+  client_id_list  = var.github_oidc_client_ids
+  thumbprint_list = [local.github_oidc_thumbprint]
 
   tags = local.default_tags
 }
@@ -73,7 +80,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [local.github_oidc_provider_arn]
+      identifiers = local.github_oidc_provider_identifiers
     }
 
     condition {
