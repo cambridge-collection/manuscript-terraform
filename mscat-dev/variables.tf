@@ -50,6 +50,12 @@ variable "github_oidc_provider_arn" {
   default     = null
 }
 
+variable "github_oidc_client_ids" {
+  description = "Client IDs (audiences) trusted for the GitHub OIDC provider"
+  type        = list(string)
+  default     = ["sts.amazonaws.com"]
+}
+
 variable "transcriptions-bucket-name" {
   description = "The name of the s3 bucket that stores the HTMl transcriptions (post-processing). Will be prefixed with the environment value."
 }
