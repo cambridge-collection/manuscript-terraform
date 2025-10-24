@@ -60,6 +60,31 @@ function jwt_generate(header, payload, secret) {
     return[signingInput, sig_final].join('.');
 }
 
+function stripSubdomains(hostname) {
+    const parts = hostname.split('.');
+    let result;
+
+    // Special‐case: anything longer than 4 parts ending in lib.cam.ac.uk
+    if (parts.length > 4 && hostname.endsWith('lib.cam.ac.uk')) {
+        result = parts.slice(-5).join('.');
+    }
+    // Fallback for very short hostnames
+    else if (parts.length < 3) {
+        result = hostname;
+    }
+    // Your existing 2nd‐level domain logic
+    else {
+        const commonSecondLevelDomains = ['org.uk', 'ac.uk'];
+        const lastTwo   = parts.slice(-2).join('.');
+        const lastThree = parts.slice(-3).join('.');
+        result = commonSecondLevelDomains.includes(lastTwo)
+            ? lastThree
+            : lastTwo;
+    }
+
+    return result;
+}
+
 async function handler(event) {
     let request = event.request;
     let redirectAfterAuth = false
@@ -78,7 +103,7 @@ async function handler(event) {
     privateSite = (privateSite === 'true') ? true: false
     const requiredBasicAuth = "Basic " + btoa(`${user}:${pass}`);
     let isAuthorised = false;
-    const domainTld = ('host' in request.headers) ?  (request.headers.host.value).split(/\./).slice(-2).join('.') : domain;
+    const domainTld = ('host' in request.headers) ?  stripSubdomains(request.headers.host.value) : domain;
     const cookieKey = domainTld+"Key"
     if (privateSite && request.headers.authorization) {
         if (request.headers.authorization.value === requiredBasicAuth) {

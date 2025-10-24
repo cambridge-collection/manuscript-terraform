@@ -5,7 +5,7 @@ variable "environment" {
 
 variable "project" {
   type        = string
-  description = "Project or Service name, e.g. DPS, CUDL, mscat"
+  description = "Project or Service name, e.g. DPS, CUDL, Darwin, Epsilon, mscat"
 }
 
 variable "component" {

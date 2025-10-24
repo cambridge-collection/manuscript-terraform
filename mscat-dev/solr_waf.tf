@@ -122,33 +122,4 @@ resource "aws_wafv2_web_acl" "solr" {
       sampled_requests_enabled   = true
     }
   }
-
-  rule {
-    name     = "${module.solr.name_prefix}-allow-collections"
-    priority = 4
-
-    action {
-      allow {}
-    }
-
-    statement {
-      byte_match_statement {
-        positional_constraint = "STARTS_WITH"
-        search_string         = "/pages"
-        field_to_match {
-          uri_path {}
-        }
-        text_transformation {
-          priority = 0
-          type     = "NONE"
-        }
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "${module.solr.name_prefix}-allow-collections"
-      sampled_requests_enabled   = true
-    }
-  }
 }
