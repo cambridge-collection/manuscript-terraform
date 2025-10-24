@@ -5,7 +5,8 @@ subcomponent              = "cudl-transform-lambda"
 destination-bucket-name   = "releases"
 destination-bucket-prefix = ""
 github_oidc_subjects = [
-  "repo:cambridge-collection/mscat:ref:refs/heads/main"
+  "repo:mjhawkins/manuscript-catalogue-data:ref:refs/heads/release",
+  "repo:mjhawkins/manuscript-catalogue-data:workflow:Transform XML and Publish Snapshot"
 ]
 github_oidc_provider_arn     = null
 web_frontend_domain_name     = "mscat-dev.cudl-sandbox.net"
@@ -23,13 +24,6 @@ transform-lambda-bucket-sqs-notifications = [
     "type"          = "SQS",
     "queue_name"    = "MscatIndexTEIQueue"
     "filter_prefix" = "solr-json/tei/"
-    "filter_suffix" = ".json"
-    "bucket_name"   = "releases"
-  },
-  {
-    "type"          = "SQS",
-    "queue_name"    = "MscatIndexPagesQueue"
-    "filter_prefix" = "solr-json/pages/"
     "filter_suffix" = ".json"
     "bucket_name"   = "releases"
   }
@@ -54,26 +48,6 @@ transform-lambda-information = [
       API_HOST = "solr-api-mscat-ecs.mscat-dev-solr"
       API_PORT = "8081"
       API_PATH = "item"
-    }
-  },
-  {
-    "name"                     = "AWSLambda_Pages_SOLR_Listener"
-    "image_uri"                = "563181399728.dkr.ecr.eu-west-1.amazonaws.com/mscat/solr-listener@sha256:6a0725719f82e371437659d12cbd2050d368cd3c1d38220045537fc6e966ab7e"
-    "queue_name"               = "MscatIndexPagesQueue"
-    "vpc_name"                 = "mscat-dev-mscat-ecs-vpc"
-    "subnet_names"             = ["mscat-dev-mscat-ecs-subnet-private-a", "mscat-dev-mscat-ecs-subnet-private-b"]
-    "security_group_names"     = ["mscat-dev-mscat-ecs-vpc-egress", "mscat-dev-solr-external"]
-    "timeout"                  = 180
-    "memory"                   = 1024
-    "batch_window"             = 2
-    "batch_size"               = 1
-    "maximum_concurrency"      = 5
-    "use_datadog_variables"    = false
-    "use_additional_variables" = true
-    "environment_variables" = {
-      API_HOST = "solr-api-mscat-ecs.mscat-dev-solr"
-      API_PORT = "8081"
-      API_PATH = "page"
     }
   }
 ]

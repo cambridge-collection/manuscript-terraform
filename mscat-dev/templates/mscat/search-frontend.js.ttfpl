@@ -70,9 +70,34 @@ function jwt_valid(received_token, secret) {
     return result;
 }
 
+function stripSubdomains(hostname) {
+    const parts = hostname.split('.');
+    let result;
+
+    // Special‐case: anything longer than 4 parts ending in lib.cam.ac.uk
+    if (parts.length > 4 && hostname.endsWith('lib.cam.ac.uk')) {
+        result = parts.slice(-5).join('.');
+    }
+    // Fallback for very short hostnames
+    else if (parts.length < 3) {
+        result = hostname;
+    }
+    // Your existing 2nd‐level domain logic
+    else {
+        const commonSecondLevelDomains = ['org.uk', 'ac.uk'];
+        const lastTwo   = parts.slice(-2).join('.');
+        const lastThree = parts.slice(-3).join('.');
+        result = commonSecondLevelDomains.includes(lastTwo)
+            ? lastThree
+            : lastTwo;
+    }
+
+    return result;
+}
+
 async function handler(event) {
     let request = event.request;
-    const domainTld = ('host' in request.headers) ?  (request.headers.host.value).split(/\./).slice(-2).join('.') : 'cudl-sandbox.net';
+    const domainTld = ('host' in request.headers) ?  stripSubdomains(request.headers.host.value) : 'cudl-sandbox.net';
     const cookieKey = domainTld+"Key"
     if (['GET','HEAD','OPTIONS'].includes(request.method)) {
         try {
