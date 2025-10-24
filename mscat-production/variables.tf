@@ -34,6 +34,28 @@ variable "destination-bucket-name" {
   type        = string
 }
 
+variable "destination-bucket-prefix" {
+  description = "Prefix within the destination bucket that GitHub Actions can manage build artifacts under"
+  type        = string
+}
+
+variable "github_oidc_subjects" {
+  description = "List of GitHub Actions OIDC subjects (repo:<org>/<repo>:ref:...) allowed to assume the AWS GitHub Actions role"
+  type        = list(string)
+}
+
+variable "github_oidc_provider_arn" {
+  description = "Existing GitHub OIDC provider ARN to reuse; leave null to create a provider"
+  type        = string
+  default     = null
+}
+
+variable "github_oidc_client_ids" {
+  description = "Client IDs (audiences) trusted for the GitHub OIDC provider"
+  type        = list(string)
+  default     = ["sts.amazonaws.com"]
+}
+
 variable "transcriptions-bucket-name" {
   description = "The name of the s3 bucket that stores the HTMl transcriptions (post-processing). Will be prefixed with the environment value."
 }
