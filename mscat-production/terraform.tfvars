@@ -3,6 +3,12 @@ project                      = "mscat-medieval"
 component                    = "cudl-data-workflows"
 subcomponent                 = "cudl-transform-lambda"
 destination-bucket-name      = "releases"
+destination-bucket-prefix = ""
+github_oidc_subjects = [
+  "repo:cambridge-collection/manuscript-catalogue-data:ref:refs/heads/release",
+  "repo:cambridge-collection/manuscript-catalogue-data:workflow:Transform XML and Publish Snapshot"
+]
+github_oidc_provider_arn     = null
 web_frontend_domain_name     = "mscat-medieval-production.medieval.lib.cam.ac.uk"
 transcriptions-bucket-name   = "unused-cul-cudl-transcriptions"
 enhancements-bucket-name     = "unused-cul-cudl-data-enhancements"
