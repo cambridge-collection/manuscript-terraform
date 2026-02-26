@@ -1,6 +1,6 @@
 variable "environment" {
   type        = string
-  description = "The environment you're working with. Live | Staging | Development | All"
+  description = "The environment you're working with. Live | Staging | Editorial | All"
 }
 
 variable "project" {
@@ -174,6 +174,18 @@ variable "cloudfront_origin_path" {
 variable "cloudfront_error_response_page_path" {
   description = "Origin path for errors in an S3 Bucket or custom origin"
   type        = string
+}
+
+variable "cloudfront_access_logging" {
+  description = "Whether to log CloudFront requests for cudl-data-processing distribution"
+  type        = bool
+  default     = false
+}
+
+variable "cloudfront_access_logging_bucket" {
+  description = "S3 bucket domain name for CloudFront access logs"
+  type        = string
+  default     = null
 }
 
 variable "cloudfront_default_root_object" {

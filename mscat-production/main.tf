@@ -19,7 +19,7 @@ module "base_architecture" {
 }
 
 module "cudl-data-processing" {
-  source                                    = "git::https://github.com/cambridge-collection/cudl-terraform.git//modules/cudl-data-processing?ref=v1.2.0"
+  source                                    = "git::https://github.com/cambridge-collection/cudl-terraform.git//modules/cudl-data-processing?ref=v1.2.1"
   production_deployment                     = true
   compressed-lambdas-directory              = var.compressed-lambdas-directory
   destination-bucket-name                   = var.destination-bucket-name
@@ -50,6 +50,8 @@ module "cudl-data-processing" {
   cloudfront_default_root_object            = var.cloudfront_default_root_object
   cloudfront_origin_path                    = var.cloudfront_origin_path
   cloudfront_error_response_page_path       = var.cloudfront_error_response_page_path
+  cloudfront_access_logging                 = var.cloudfront_access_logging
+  cloudfront_access_logging_bucket          = var.cloudfront_access_logging_bucket
   cloudfront_viewer_request_function_arn    = aws_cloudfront_function.mscat.arn
   cloudfront_alternative_domain_names       = [trimsuffix(var.registered_domain_name, ".")]
   acm_create_certificate                    = false
