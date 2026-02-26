@@ -64,6 +64,8 @@ cloudfront_distribution_name        = "mscat-medieval-production"
 cloudfront_origin_path              = "/www"
 cloudfront_error_response_page_path = "/404.html"
 cloudfront_default_root_object      = "index.html"
+cloudfront_access_logging           = true
+cloudfront_access_logging_bucket    = "cul-ss-production-cloudfront-accesslogs.s3.amazonaws.com"
 
 # Base Architecture
 cluster_name_suffix            = "mscat-ecs"
