@@ -193,7 +193,7 @@ async function handler(event) {
             request.uri = final_uri + '%3Fpage=' + event.request.querystring['page'].value + '.html' +anchor
 
         }
-        else if (/^(index\/*|\/*)$/.test(uri)) {
+        else if (/^\/*(index(\.html*)?\/*)?$/.test(uri)) {
             response = {
                 statusCode: 301,
                 statusDescription: 'Moved Permanently',
