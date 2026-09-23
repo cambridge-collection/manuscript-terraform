@@ -5,7 +5,7 @@ import cf from 'cloudfront';
 
 const kvsHandle = cf.kvs();
 
-const KeyPrivateSite = "privateSite"
+const KeyPrivateSite = "privateSiteSearch"
 const keySecret = "secret"
 const keyJwtDuration = "jwtDuration"
 let secret = "Not Found"
