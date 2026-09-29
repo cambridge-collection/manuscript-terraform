@@ -154,7 +154,7 @@ async function handler(event) {
     }
     if (!privateSite || (isAuthorised && !redirectAfterAuth)) {
 
-        const url = getLocation('https://www.darwinproject.ac.uk'+ request.uri)
+        const url = getLocation('https://medieval.lib.cam.ac.uk'+ request.uri)
         const uri = url.pathname;
         const anchor = url.hash
         const is_search = /^\/search(\/+)*$/ig.test(uri)
