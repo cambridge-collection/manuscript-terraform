@@ -162,7 +162,15 @@ async function handler(event) {
 
         let response = {}
 
-        if (uri.match('^/searchResults.config.json')) {
+        if (/^\/catalog(\/|$)/.test(uri)) {
+            response = {
+                statusCode: 301,
+                statusDescription: 'Moved Permanently',
+                headers:
+                    { "location": { "value": uri.replace(/^\/catalog/, '/catalogue') } }
+            }
+        }
+        else if (uri.match('^/searchResults.config.json')) {
             request.uri = '/searchResults.config.json'
         }
         else if (is_search) {
