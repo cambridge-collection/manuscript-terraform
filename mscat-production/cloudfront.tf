@@ -42,7 +42,13 @@ resource "aws_cloudfrontkeyvaluestore_key" "domain" {
 resource "aws_cloudfrontkeyvaluestore_key" "privateSite" {
   key_value_store_arn = aws_cloudfront_key_value_store.viewer.arn
   key                 = "privateSite"
-  value               = true
+  value               = false
+}
+
+resource "aws_cloudfrontkeyvaluestore_key" "privateSiteSearch" {
+  key_value_store_arn = aws_cloudfront_key_value_store.viewer.arn
+  key                 = "privateSiteSearch"
+  value               = false
 }
 
 resource "aws_cloudfrontkeyvaluestore_key" "secret" {

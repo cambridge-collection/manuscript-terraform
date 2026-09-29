@@ -154,7 +154,7 @@ async function handler(event) {
     }
     if (!privateSite || (isAuthorised && !redirectAfterAuth)) {
 
-        const url = getLocation('https://www.darwinproject.ac.uk'+ request.uri)
+        const url = getLocation('https://medieval.lib.cam.ac.uk'+ request.uri)
         const uri = url.pathname;
         const anchor = url.hash
         const is_search = /^\/search(\/+)*$/ig.test(uri)
@@ -162,7 +162,15 @@ async function handler(event) {
 
         let response = {}
 
-        if (uri.match('^/searchResults.config.json')) {
+        if (/^\/catalog(\/|$)/.test(uri)) {
+            response = {
+                statusCode: 301,
+                statusDescription: 'Moved Permanently',
+                headers:
+                    { "location": { "value": uri.replace(/^\/catalog/, '/catalogue') } }
+            }
+        }
+        else if (uri.match('^/searchResults.config.json')) {
             request.uri = '/searchResults.config.json'
         }
         else if (is_search) {
@@ -194,12 +202,7 @@ async function handler(event) {
 
         }
         else if (/^\/*(index(\.html*)?\/*)?$/.test(uri)) {
-            response = {
-                statusCode: 301,
-                statusDescription: 'Moved Permanently',
-                headers:
-                    { "location": { "value": "/search?sort=title" } }
-            }
+            request.uri = '/index.html'
         }
         else if (uri.endsWith('/')) {
             request.uri += 'index.html';
